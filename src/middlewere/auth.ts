@@ -1,9 +1,9 @@
-import express, { NextFunction, Request, Response, Router } from "express";
+import { NextFunction, Request, Response } from "express";
 
 import { auth as betterAuth } from "../lib/auth";
 
 export enum USERROLE {
-  USER = "CUSTOMER",
+  CUSTOMER = "CUSTOMER",
   SELLER = "SELLER",
   ADMIN = "ADMIN",
 }

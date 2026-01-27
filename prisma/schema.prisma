@@ -41,6 +41,8 @@ model Category {
   id          Int         @id @default(autoincrement())
   name        String      @unique
   description String?
+  userId      String?
+  user        User?       @relation(fields: [userId], references: [id])
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   Medicines   Medicines[]
@@ -129,13 +131,14 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
-  role      String?     @default("CUSTOMER")
-  phone     String?
-  status    String?     @default("ACTIVE")
-  medicines Medicines[]
-  orders    Orders[]
-  cartItems CartItem[]
-  reviews   Reviews[]
+  role       String?     @default("CUSTOMER")
+  phone      String?
+  status     String?     @default("ACTIVE")
+  medicines  Medicines[]
+  orders     Orders[]
+  cartItems  CartItem[]
+  reviews    Reviews[]
+  categories Category[]
 
   @@unique([email])
   @@map("user")
