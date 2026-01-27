@@ -14,38 +14,54 @@ datasource db {
 }
 
 model Medicines {
-  id          String         @id @default(uuid())
-  name        String         @db.VarChar(255)
-  description String?        @db.Text
-  price       Float
-  category    String
-  stock       Int
-  status      MedicineStatus @default(ACTIVE)
-  sellerId    String
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  orders      Orders[]
-  reviews     Reviews[]
-  cartItems   CartItem[]
+  id           String         @id @default(uuid())
+  name         String         @db.VarChar(255)
+  description  String?        @db.Text
+  price        Float
+  stock        Int
+  status       MedicineStatus @default(ACTIVE)
+  manufacturer String
+  expiryDate   DateTime
+  image        String?
+  category     Category       @relation(fields: [categoryId], references: [id])
+  categoryId   Int
+  seller       User           @relation(fields: [sellerId], references: [id])
+  sellerId     String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  orders       Orders[]
+  reviews      Reviews[]
+  cartItems    CartItem[]
 
   @@index([sellerId])
   @@map("medicines")
 }
 
+model Category {
+  id          Int         @id @default(autoincrement())
+  name        String      @unique
+  description String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  Medicines   Medicines[]
+}
+
 model Orders {
-  id             String      @id @default(uuid())
-  medicineId     String
-  medicines      Medicines   @relation(fields: [medicineId], references: [id], onDelete: Cascade)
-  userId         String
-  quantity       Int
-  totalPrice     Float
-  status         OrderStatus @default(PENDING)
-  paymentGeteway String
-  orderDate      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
+  id              String      @id @default(uuid())
+  medicineId      String
+  medicines       Medicines   @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+  customer        User        @relation(fields: [customerId], references: [id])
+  customerId      String
+  quantity        Int
+  totalPrice      Float
+  status          OrderStatus @default(PENDING)
+  paymentGeteway  String
+  shippingAddress String
+  orderDate       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 
   @@index([medicineId])
-  @@index([userId])
+  @@index([customerId])
   @@map("orders")
 }
 
@@ -53,14 +69,15 @@ model Reviews {
   id         String       @id @default(uuid())
   medicineId String
   medicines  Medicines    @relation(fields: [medicineId], references: [id], onDelete: Cascade)
-  userId     String
+  customer   User         @relation(fields: [customerId], references: [id])
+  customerId String
   status     ReviewStatus @default(APPROVED)
   rating     Int
   comment    String?      @db.Text
   createdAt  DateTime     @default(now())
 
   @@index([medicineId])
-  @@index([userId])
+  @@index([customerId])
   @@map("reviews")
 }
 
@@ -68,6 +85,8 @@ model CartItem {
   id         String    @id @default(uuid())
   cartId     String
   cart       Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  customer   User      @relation(fields: [customerId], references: [id])
+  customerId String
   medicineId String
   medicines  Medicines @relation(fields: [medicineId], references: [id], onDelete: Cascade)
   quantity   Int
@@ -109,6 +128,14 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+
+  role      String?     @default("CUSTOMER")
+  phone     String?
+  status    String?     @default("ACTIVE")
+  medicines Medicines[]
+  orders    Orders[]
+  cartItems CartItem[]
+  reviews   Reviews[]
 
   @@unique([email])
   @@map("user")

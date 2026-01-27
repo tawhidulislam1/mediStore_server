@@ -1,0 +1,89 @@
+model User {
+  id        Int        @id @default(autoincrement())
+  name      String
+  email     String     @unique
+  password  String
+  role      String
+  isBanned  Boolean    @default(false)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Medicines Medicine[]
+  Orders    Order[]
+  Reviews   Review[]
+  cartItems CartItem[]
+}
+
+model Category {
+  id          Int        @id @default(autoincrement())
+  name        String     @unique
+  description String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  Medicines   Medicine[]
+}
+
+model Medicine {
+  id           Int         @id @default(autoincrement())
+  name         String
+  description  String
+  price        Float
+  stock        Int
+  manufacturer String
+  expiryDate   DateTime
+  image        String?
+  isActive     Boolean     @default(true)
+  category     Category    @relation(fields: [categoryId], references: [id])
+  categoryId   Int
+  seller       User        @relation(fields: [sellerId], references: [id])
+  sellerId     Int
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  Reviews      Review[]
+  OrderItems   OrderItem[]
+  cartItems    CartItem[]
+}
+
+model Order {
+  id              Int         @id @default(autoincrement())
+  customer        User        @relation(fields: [customerId], references: [id])
+  customerId      Int
+  totalAmount     Float
+  status          String
+  paymentMethod   String
+  shippingAddress String
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  OrderItems      OrderItem[]
+}
+
+model OrderItem {
+  id         Int      @id @default(autoincrement())
+  order      Order    @relation(fields: [orderId], references: [id])
+  orderId    Int
+  medicine   Medicine @relation(fields: [medicineId], references: [id])
+  medicineId Int
+  sellerId   Int
+  quantity   Int
+  price      Float
+}
+
+model Review {
+  id         Int      @id @default(autoincrement())
+  customer   User     @relation(fields: [customerId], references: [id])
+  customerId Int
+  medicine   Medicine @relation(fields: [medicineId], references: [id])
+  medicineId Int
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now())
+}
+
+model CartItem {
+  id         Int      @id @default(autoincrement())
+  customer   User     @relation(fields: [customerId], references: [id])
+  customerId Int
+  medicine   Medicine @relation(fields: [medicineId], references: [id])
+  medicineId Int
+  quantity   Int      @default(1)
+  createdAt  DateTime @default(now())
+}
