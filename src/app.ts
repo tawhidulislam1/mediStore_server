@@ -15,7 +15,7 @@ app.use(
 
 app.use(express.json());
 app.all("/api/auth/*splat", toNodeHandler(auth));
-app.use("/category", CategoryRouter);
+app.use("/admin/category", CategoryRouter);
 app.get("/", (req, res) => {
   res.send("hello world");
 });

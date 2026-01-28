@@ -8,5 +8,20 @@ router.post(
   auth(USERROLE.ADMIN, USERROLE.CUSTOMER, USERROLE.SELLER),
   categoryController.createCategory,
 );
+router.get(
+  "/",
+  auth(USERROLE.ADMIN, USERROLE.CUSTOMER, USERROLE.SELLER),
+  categoryController.getAllCategory,
+);
+router.patch(
+  "/:categoryId",
+  auth(USERROLE.ADMIN, USERROLE.CUSTOMER, USERROLE.SELLER),
+  categoryController.updateCategory,
+);
+router.delete(
+  "/:categoryId",
+  auth(USERROLE.ADMIN, USERROLE.CUSTOMER, USERROLE.SELLER),
+  categoryController.deleteCategory,
+);
 
 export const CategoryRouter: Router = router;
