@@ -5,6 +5,7 @@ import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import { CategoryRouter } from "./modules/Category/category.route";
 import { MedicinesRouter } from "./modules/medicine/medicine.route";
+import { ReviewRouter } from "./modules/reviews/review.route";
 
 const app: Application = express();
 app.use(
@@ -18,6 +19,7 @@ app.use(express.json());
 app.all("/api/auth/*splat", toNodeHandler(auth));
 app.use("/admin/category", CategoryRouter);
 app.use("/medicine", MedicinesRouter);
+app.use("/review", ReviewRouter);
 app.get("/", (req, res) => {
   res.send("hello world");
 });
