@@ -7,17 +7,14 @@ const createMedicine = async (
   const res = await prisma.medicines.create({
     data,
   });
-  console.log(res, data);
   return res;
 };
 
 const getAllMedicine = async (payload: {
-  search: string | undefined;
-  category: string;
-  price: number;
-  manufacturer: string;
+  search?: string | undefined;
+  category?: string | undefined;
 }) => {
-  const addCondition: Prisma.PostWhereInput[] = [];
+  const addCondition: Prisma.MedicinesWhereInput[] = [];
   if (payload.search) {
     addCondition.push({
       OR: [
@@ -36,9 +33,20 @@ const getAllMedicine = async (payload: {
       ],
     });
   }
-  
+
+  if (payload.category) {
+    addCondition.push({
+      categoryId: Number(payload.category),
+    });
+  }
   const res = await prisma.medicines.findMany({
+    where: {
+      AND: addCondition,
+    },
     include: {
+      category: {
+        select: { name: true },
+      },
       _count: {
         select: { orders: true, reviews: true },
       },
