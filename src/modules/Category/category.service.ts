@@ -29,13 +29,20 @@ const updateCategory = async (
   categoryId: number,
   data: Partial<Category>,
   userId: string,
+  isAdmin: Boolean,
 ) => {
   const categoryData = await prisma.category.findUniqueOrThrow({
     where: {
       id: categoryId,
     },
+    include: {
+      user: true,
+    },
   });
-  console.log(categoryData);
+
+  if (!isAdmin && categoryData.userId !== userId) {
+    throw new Error("your are not owner in this post");
+  }
   const result = await prisma.category.update({
     where: {
       id: categoryData.id,

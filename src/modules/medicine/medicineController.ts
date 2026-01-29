@@ -75,6 +75,9 @@ const updateMedicine = async (
   try {
     const { medicineId } = req.params;
     const user = req.user;
+
+    const isAdmin = user?.role === USERROLE.ADMIN;
+    console.log(isAdmin);
     if (!user?.role.includes(USERROLE.ADMIN || USERROLE.SELLER)) {
       return res.status(400).json({
         success: false,
@@ -84,6 +87,8 @@ const updateMedicine = async (
     const result = await medicineService.updateMedicine(
       medicineId as string,
       req.body,
+      user?.id as string,
+      isAdmin,
     );
     res.status(201).json({
       success: true,

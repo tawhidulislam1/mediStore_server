@@ -1,3 +1,4 @@
+import { object } from "better-auth";
 import { Medicines, Prisma } from "../../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
 
@@ -68,12 +69,25 @@ const getMedicineById = async (medicineid: string) => {
   return res;
 };
 
-const updateMedicine = async (medicineId: string, data: Partial<Medicines>) => {
+const updateMedicine = async (
+  medicineId: string,
+  data: Partial<Medicines>,
+  userId: string,
+  isAdmin: Boolean,
+) => {
+  console.log(medicineId);
   const medicineData = await prisma.medicines.findUniqueOrThrow({
     where: {
       id: medicineId,
     },
+    include: {
+      seller: true,
+    },
   });
+
+  if (!isAdmin && medicineData.sellerId !== userId) {
+    throw new Error("your are not owner in this post");
+  }
   const result = await prisma.medicines.update({
     where: {
       id: medicineData.id,

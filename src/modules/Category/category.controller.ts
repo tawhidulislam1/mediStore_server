@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { categoryService } from "./category.service";
+import { USERROLE } from "../../middlewere/auth";
 
 const createCategory = async (req: Request, res: Response) => {
   try {
@@ -58,13 +59,13 @@ const updateCategory = async (
         message: "Invalid category id",
       });
     }
-    console.log(id);
-    console.log(user.id);
-    console.log(req.body);
+
+    const isAdmin = user?.role === USERROLE.ADMIN;
     const result = await categoryService.updateCategory(
       id,
       req.body,
       user?.id as string,
+      isAdmin,
     );
     res.status(201).json({
       success: true,

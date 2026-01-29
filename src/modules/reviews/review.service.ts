@@ -6,11 +6,9 @@ const createReview = async (payload: {
   rating: number;
   comment: string;
 }) => {
-  const res = await prisma.reviews.create({
+  return await prisma.reviews.create({
     data: payload,
   });
-  console.log(res);
-  return res
 };
 
 export const reviewService = {
