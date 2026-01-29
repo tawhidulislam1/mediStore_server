@@ -36,6 +36,7 @@ const getAllMedicine = async (payload: {
       ],
     });
   }
+  
   const res = await prisma.medicines.findMany({
     include: {
       _count: {
