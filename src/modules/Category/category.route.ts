@@ -3,11 +3,7 @@ import { categoryController } from "./category.controller";
 import auth, { USERROLE } from "../../middlewere/auth";
 const router = express.Router();
 
-router.post(
-  "/",
-  auth(USERROLE.ADMIN, USERROLE.CUSTOMER, USERROLE.SELLER),
-  categoryController.createCategory,
-);
+router.post("/", auth(USERROLE.ADMIN), categoryController.createCategory);
 router.get(
   "/",
   auth(USERROLE.ADMIN, USERROLE.CUSTOMER, USERROLE.SELLER),
@@ -15,12 +11,12 @@ router.get(
 );
 router.patch(
   "/:categoryId",
-  auth(USERROLE.ADMIN, USERROLE.CUSTOMER, USERROLE.SELLER),
+  auth(USERROLE.ADMIN),
   categoryController.updateCategory,
 );
 router.delete(
   "/:categoryId",
-  auth(USERROLE.ADMIN, USERROLE.CUSTOMER, USERROLE.SELLER),
+  auth(USERROLE.ADMIN),
   categoryController.deleteCategory,
 );
 
