@@ -75,7 +75,6 @@ const updateMedicine = async (
   userId: string,
   isAdmin: Boolean,
 ) => {
-  console.log(medicineId);
   const medicineData = await prisma.medicines.findUniqueOrThrow({
     where: {
       id: medicineId,
