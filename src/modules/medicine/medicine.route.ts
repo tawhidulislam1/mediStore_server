@@ -16,6 +16,11 @@ router.patch(
   auth(USERROLE.ADMIN, USERROLE.SELLER),
   medicineController.updateMedicine,
 );
+router.get(
+  "/seller/:sellerId",
+  auth(USERROLE.ADMIN, USERROLE.SELLER),
+  medicineController.getMedicineBySeller,
+);
 router.delete(
   "/:medicineId",
   auth(USERROLE.ADMIN, USERROLE.SELLER),

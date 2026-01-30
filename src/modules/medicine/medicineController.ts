@@ -66,6 +66,37 @@ const getMedicineById = async (req: Request, res: Response) => {
     });
   }
 };
+const getMedicineBySeller = async (req: Request, res: Response) => {
+  try {
+    const { sellerId } = req.params;
+    const user = req.user;
+    if (!sellerId) {
+      return res.status(400).json({
+        success: false,
+        message: "Medicine id is required",
+      });
+    }
+
+    if (user?.id !== sellerId && user?.role !== USERROLE.ADMIN) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to access this resource",
+      });
+    }
+    const result = await medicineService.getMedicineBySeller(
+      sellerId as string,
+    );
+    res.status(201).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    res.status(400).json({
+      error: error instanceof Error ? error.message : "Medicine Find failed",
+      details: error,
+    });
+  }
+};
 
 const updateMedicine = async (
   req: Request,
@@ -126,6 +157,7 @@ export const medicineController = {
   createMedicine,
   getAllMedicine,
   getMedicineById,
+  getMedicineBySeller,
   updateMedicine,
   deleteMedicine,
 };

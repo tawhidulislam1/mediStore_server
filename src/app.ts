@@ -8,6 +8,7 @@ import { MedicinesRouter } from "./modules/medicine/medicine.route";
 import { ReviewRouter } from "./modules/reviews/review.route";
 import { CartRouter } from "./modules/cart/cart.route";
 import { CartItemRouter } from "./modules/cartItem/cartItem.route";
+import { orderRouter } from "./modules/order/order.route";
 
 const app: Application = express();
 app.use(
@@ -24,6 +25,7 @@ app.use("/medicine", MedicinesRouter);
 app.use("/review", ReviewRouter);
 app.use("/cart", CartRouter);
 app.use("/cartItem", CartItemRouter);
+app.use("/order", orderRouter);
 app.get("/", (req, res) => {
   res.send("hello world");
 });

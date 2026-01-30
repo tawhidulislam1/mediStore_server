@@ -1,6 +1,7 @@
 import { object } from "better-auth";
 import { Medicines, Prisma } from "../../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
+import { MedicinesWhereUniqueInput } from "../../../generated/prisma/models";
 
 const createMedicine = async (
   data: Omit<Medicines, "id" | "createdAt" | "updatedAt">,
@@ -61,12 +62,40 @@ const getMedicineById = async (medicineid: string) => {
       id: medicineid,
     },
     include: {
+      seller: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+          email: true,
+          role: true,
+        },
+      },
       _count: {
         select: { orders: true, reviews: true },
       },
     },
   });
   return res;
+};
+const getMedicineBySeller = async (sellerId: string) => {
+  const medicineData = await prisma.medicines.findMany({
+    where: {
+      sellerId: sellerId,
+    },
+    include: {
+      seller: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+          email: true,
+          role: true,
+        },
+      },
+    },
+  });
+  return medicineData;
 };
 
 const updateMedicine = async (
@@ -113,6 +142,7 @@ export const medicineService = {
   createMedicine,
   getAllMedicine,
   getMedicineById,
+  getMedicineBySeller,
   updateMedicine,
   deleteMedicine,
 };
