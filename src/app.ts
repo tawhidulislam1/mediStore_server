@@ -9,6 +9,8 @@ import { ReviewRouter } from "./modules/reviews/review.route";
 import { CartRouter } from "./modules/cart/cart.route";
 import { CartItemRouter } from "./modules/cartItem/cartItem.route";
 import { orderRouter } from "./modules/order/order.route";
+import errorHandler from "./middlewere/globalErrorHandler";
+import { UserRouter } from "./modules/user/user.route";
 
 const app: Application = express();
 app.use(
@@ -20,6 +22,7 @@ app.use(
 
 app.use(express.json());
 app.all("/api/auth/*splat", toNodeHandler(auth));
+app.use("/api/user", UserRouter);
 app.use("/admin/category", CategoryRouter);
 app.use("/medicine", MedicinesRouter);
 app.use("/review", ReviewRouter);
@@ -30,5 +33,5 @@ app.get("/", (req, res) => {
   res.send("hello world");
 });
 app.use(notFound);
-
+app.use(errorHandler);
 export default app;
