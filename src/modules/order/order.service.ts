@@ -17,6 +17,18 @@ const createOrder = async (
       (sum, item) => sum + item.quantity * item.medicines.price,
       0,
     );
+    // ✅ ONLY THIS PART ADDED (quantity decrement)
+    for (const item of cartItems) {
+      await prisma.medicines.update({
+        where: { id: item.medicineId },
+        data: {
+          stock: {
+            decrement: item.quantity,
+          },
+        },
+      });
+    }
+
     const order = await prisma.orders.create({
       data: {
         customerId: userId,

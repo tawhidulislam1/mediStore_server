@@ -41,6 +41,10 @@ const getAllMedicine = async (payload: {
       categoryId: Number(payload.category),
     });
   }
+  addCondition.push({
+    status: "ACTIVE",
+  });
+
   const res = await prisma.medicines.findMany({
     where: {
       AND: addCondition,
