@@ -6,10 +6,10 @@ import { USERROLE } from "../../middlewere/auth";
 const createMedicine = async (req: Request, res: Response) => {
   try {
     const user = req.user;
-    if (!user?.role.includes(USERROLE.ADMIN || USERROLE.SELLER)) {
-      return res.status(400).json({
+    if (user?.role !== USERROLE.ADMIN && user?.role !== USERROLE.SELLER) {
+      return res.status(403).json({
         success: false,
-        details: "Your are not able to create",
+        details: "You are not authorized to create medicine",
       });
     }
     const result = await medicineService.createMedicine(req.body);

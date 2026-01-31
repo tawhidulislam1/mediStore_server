@@ -50,7 +50,7 @@ const getAllMedicine = async (payload: {
         select: { name: true },
       },
       _count: {
-        select: { orders: true, reviews: true },
+        select: { orderItems: true, reviews: true },
       },
     },
   });
@@ -72,7 +72,7 @@ const getMedicineById = async (medicineid: string) => {
         },
       },
       _count: {
-        select: { orders: true, reviews: true },
+        select: { reviews: true, orderItems: true },
       },
     },
   });

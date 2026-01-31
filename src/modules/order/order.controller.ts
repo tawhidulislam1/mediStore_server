@@ -1,9 +1,11 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { orderService } from "./order.service";
+import { USERROLE } from "../../middlewere/auth";
 
 const createOrder = async (req: Request, res: Response) => {
   try {
-    const result = await orderService.createOrder(req.body);
+    const user = req.user;
+    const result = await orderService.createOrder(req.body, user?.id as string);
     res.status(201).json({
       success: true,
       data: result,
@@ -15,7 +17,78 @@ const createOrder = async (req: Request, res: Response) => {
     });
   }
 };
+const getAllOrders = async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+    if (!user || !user.id || !user.role) {
+      return res.status(401).json({
+        error: "Unauthorized: user information missing",
+      });
+    }
+    const result = await orderService.getAllOrders({
+      id: user.id as string,
+      role: user.role as USERROLE,
+    });
+    res.status(201).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    res.status(400).json({
+      error: error instanceof Error ? error.message : "order find failed",
+      details: error,
+    });
+  }
+};
+const getOrdersById = async (req: Request, res: Response) => {
+  try {
+    const { orderId } = req.params;
+    const user = req.user;
+    const result = await orderService.getOrderById(orderId as string, user);
+    res.status(201).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    res.status(400).json({
+      error: error instanceof Error ? error.message : "order find failed",
+      details: error,
+    });
+  }
+};
+
+const updateOrderStatusBySeller = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { orderId } = req.params;
+    const user = req.user;
+
+    if (!user?.role.includes(USERROLE.SELLER)) {
+      return res.status(400).json({
+        success: false,
+        details: "Your are not able to create",
+      });
+    }
+    const result = await orderService.updateOrderStatusBySeller(
+      orderId as string,
+      user?.id as string,
+      req.body.status,
+    );
+    res.status(201).json({
+      success: true,
+      result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const orderController = {
   createOrder,
+  getAllOrders,
+  getOrdersById,
+  updateOrderStatusBySeller,
 };

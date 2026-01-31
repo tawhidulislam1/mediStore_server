@@ -23,26 +23,26 @@ model Medicines {
   manufacturer String
   expiryDate   DateTime
   image        String?
-  category     Category       @relation(fields: [categoryId], references: [id])
+  category     Category       @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   categoryId   Int
-  seller       User           @relation(fields: [sellerId], references: [id])
+  seller       User           @relation(fields: [sellerId], references: [id], onDelete: Cascade)
   sellerId     String
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
-  orders       Orders[]
   reviews      Reviews[]
   cartItems    CartItem[]
+  orderItems   OrderItem[]
 
   @@index([sellerId])
   @@map("medicines")
-}     
+}
 
 model Category {
   id          Int         @id @default(autoincrement())
   name        String      @unique
   description String?
   userId      String?
-  user        User?       @relation(fields: [userId], references: [id])
+  user        User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   Medicines   Medicines[]
@@ -50,21 +50,30 @@ model Category {
 
 model Orders {
   id              String      @id @default(uuid())
-  medicineId      String
-  medicines       Medicines   @relation(fields: [medicineId], references: [id], onDelete: Cascade)
   customer        User        @relation(fields: [customerId], references: [id])
   customerId      String
-  quantity        Int
   totalPrice      Float
   status          OrderStatus @default(PENDING)
-  paymentGeteway  String
-  shippingAddress String
+  paymentGateway  String?
+  shippingAddress String?
+  orderItems      OrderItem[]
   orderDate       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
-  @@index([medicineId])
   @@index([customerId])
   @@map("orders")
+}
+
+model OrderItem {
+  id         String    @id @default(uuid())
+  orderId    String
+  order      Orders    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  medicineId String
+  medicines  Medicines @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now())
 }
 
 model Reviews {

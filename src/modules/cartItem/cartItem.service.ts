@@ -1,26 +1,31 @@
 import { CartItemUpdateInput } from "../../../generated/prisma/models";
 import { prisma } from "../../lib/prisma";
-
 const createCartItem = async (payload: {
   medicineId: string;
   customerId: string;
-  cartId: string;
+  cartId?: string; 
   quantity: number;
 }) => {
-  const cart = await prisma.cart.findFirst({
-    where: { id: payload.cartId },
-    include: {
-      items: true,
-    },
-  });
-  if (!cart) {
-    return prisma.cart.create({
-      data: {
-        userId: payload.customerId,
-      },
+  let cart = null;
+  if (payload.cartId) {
+    cart = await prisma.cart.findUnique({
+      where: { id: payload.cartId },
+      include: { items: true },
+    });
+  } else {
+    cart = await prisma.cart.findFirst({
+      where: { userId: payload.customerId },
+      include: { items: true },
     });
   }
-  const cartItem = prisma.cartItem.create({
+
+  if (!cart) {
+    cart = await prisma.cart.create({
+      data: { userId: payload.customerId },
+    });
+  }
+
+  const cartItem = await prisma.cartItem.create({
     data: {
       cartId: cart.id,
       customerId: payload.customerId,
@@ -28,6 +33,7 @@ const createCartItem = async (payload: {
       quantity: payload.quantity,
     },
   });
+
   return cartItem;
 };
 
