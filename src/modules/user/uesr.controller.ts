@@ -19,8 +19,23 @@ const getAllUser = async (req: Request, res: Response) => {
 
 const getAlluserById = async (req: Request, res: Response) => {
   try {
+    const authUser = req.user;
     const { userId } = req.params;
-    const result = await userService.getAlluserById(userId as string);
+
+    let result;
+
+    if (userId) {
+      if (authUser?.role !== USERROLE.ADMIN) {
+        return res.status(403).json({
+          success: false,
+          error: "Only admin can view other users' info",
+        });
+      }
+      result = await userService.getAlluserById(userId as string);
+    } else {
+      result = await userService.getAlluserById(authUser?.id as string);
+    }
+
     res.status(201).json({
       success: true,
       data: result,

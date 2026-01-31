@@ -5,8 +5,13 @@ const router = express.Router();
 
 router.get("/", auth(USERROLE.ADMIN), userController.getAllUser);
 router.get(
-  "/:userId",
+  "/me",
   auth(USERROLE.ADMIN, USERROLE.CUSTOMER, USERROLE.SELLER),
+  userController.getAlluserById,
+);
+router.get(
+  "/:userId",
+  auth(USERROLE.ADMIN),
   userController.getAlluserById,
 );
 router.patch("/:userId", auth(USERROLE.ADMIN), userController.updateUser);

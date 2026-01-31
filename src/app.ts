@@ -23,12 +23,12 @@ app.use(
 app.use(express.json());
 app.all("/api/auth/*splat", toNodeHandler(auth));
 app.use("/api/user", UserRouter);
-app.use("/admin/category", CategoryRouter);
+app.use("/categories", CategoryRouter);
 app.use("/medicine", MedicinesRouter);
 app.use("/review", ReviewRouter);
 app.use("/cart", CartRouter);
 app.use("/cartItem", CartItemRouter);
-app.use("/order", orderRouter);
+app.use("/api/orders", orderRouter);
 app.get("/", (req, res) => {
   res.send("hello world");
 });
