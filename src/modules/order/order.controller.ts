@@ -57,7 +57,7 @@ const getOrdersById = async (req: Request, res: Response) => {
   }
 };
 
-const updateOrderStatusBySeller = async (
+export const updateOrderStatus = async (
   req: Request,
   res: Response,
   next: NextFunction,
@@ -65,24 +65,31 @@ const updateOrderStatusBySeller = async (
   try {
     const { orderId } = req.params;
     const user = req.user;
+    const newStatus = req.body.status;
 
-    if (!user?.role.includes(USERROLE.SELLER)) {
-      return res.status(400).json({
+    if (!user) {
+      return res.status(401).json({
         success: false,
-        details: "Your are not able to create",
+        details: "Unauthorized",
       });
     }
-    const result = await orderService.updateOrderStatusBySeller(
+
+    const updatedOrder = await orderService.updateOrderStatus(
       orderId as string,
-      user?.id as string,
-      req.body.status,
+      user.id as string,
+      user.role as string,
+      newStatus,
     );
-    res.status(201).json({
+
+    res.status(200).json({
       success: true,
-      result,
+      result: updatedOrder,
     });
-  } catch (error) {
-    next(error);
+  } catch (error: any) {
+    res.status(403).json({
+      success: false,
+      details: error.message || "Something went wrong",
+    });
   }
 };
 
@@ -90,5 +97,5 @@ export const orderController = {
   createOrder,
   getAllOrders,
   getOrdersById,
-  updateOrderStatusBySeller,
+  updateOrderStatus,
 };

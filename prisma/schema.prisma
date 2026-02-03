@@ -127,6 +127,9 @@ enum OrderStatus {
   PENDING
   APPROVED
   REJECTED
+  PROCESSING
+  SHIPPED
+  CANCEL
 }
 
 model User {

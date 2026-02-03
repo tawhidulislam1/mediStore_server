@@ -4,10 +4,11 @@ import auth, { USERROLE } from "../../middlewere/auth";
 const router = express.Router();
 
 router.post("/", auth(USERROLE.ADMIN), categoryController.createCategory);
+router.get("/", categoryController.getAllCategory);
 router.get(
-  "/",
+  "/:categoryId",
   auth(USERROLE.ADMIN, USERROLE.CUSTOMER, USERROLE.SELLER),
-  categoryController.getAllCategory,
+  categoryController.getCategoryById,
 );
 router.patch(
   "/:categoryId",

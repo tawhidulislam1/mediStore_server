@@ -29,9 +29,11 @@ const getAllMedicine = async (req: Request, res: Response) => {
     const { search } = req.query;
     const searchString = typeof search === "string" ? search : undefined;
     const category = req.query.category as string | undefined;
+    const status = req.query.status as string | undefined;
     const result = await medicineService.getAllMedicine({
       search: searchString,
       category,
+      status,
     });
     res.status(201).json({
       success: true,
@@ -107,19 +109,11 @@ const updateMedicine = async (
     const { medicineId } = req.params;
     const user = req.user;
 
-    const isAdmin = user?.role === USERROLE.ADMIN;
-    console.log(isAdmin);
-    if (!user?.role.includes(USERROLE.ADMIN || USERROLE.SELLER)) {
-      return res.status(400).json({
-        success: false,
-        details: "Your are not able to create",
-      });
-    }
+  
     const result = await medicineService.updateMedicine(
       medicineId as string,
       req.body,
       user?.id as string,
-      isAdmin,
     );
     res.status(201).json({
       success: true,
@@ -134,13 +128,7 @@ const deleteMedicine = async (req: Request, res: Response) => {
   try {
     const { medicineId } = req.params;
     const user = req.user;
-    if (!user?.role.includes(USERROLE.ADMIN || USERROLE.SELLER)) {
-      return res.status(400).json({
-        success: false,
-        details: "Your are not able to delete",
-      });
-    }
-
+   
     const result = await medicineService.deleteMedicine(medicineId as string);
     res.status(201).json({
       success: true,

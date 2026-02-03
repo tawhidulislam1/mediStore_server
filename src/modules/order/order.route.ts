@@ -13,6 +13,7 @@ router.get(
   auth(USERROLE.ADMIN, USERROLE.CUSTOMER, USERROLE.SELLER),
   orderController.getAllOrders,
 );
+
 router.get(
   "/:orderId",
   auth(USERROLE.ADMIN, USERROLE.CUSTOMER, USERROLE.SELLER),
@@ -20,8 +21,8 @@ router.get(
 );
 router.patch(
   "/:orderId",
-  auth(USERROLE.SELLER),
-  orderController.updateOrderStatusBySeller,
+  auth(USERROLE.SELLER, USERROLE.ADMIN, USERROLE.CUSTOMER),
+  orderController.updateOrderStatus,
 );
 
 export const orderRouter: Router = router;

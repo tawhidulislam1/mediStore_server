@@ -65,6 +65,7 @@ const deleteUser = async (userId: string) => {
   });
 };
 
+
 export const userService = {
   getAlluser,
   getAlluserById,

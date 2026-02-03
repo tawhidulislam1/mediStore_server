@@ -9,11 +9,8 @@ router.get(
   auth(USERROLE.ADMIN, USERROLE.CUSTOMER, USERROLE.SELLER),
   userController.getAlluserById,
 );
-router.get(
-  "/:userId",
-  auth(USERROLE.ADMIN),
-  userController.getAlluserById,
-);
+router.get("/:userId", auth(USERROLE.ADMIN), userController.getAlluserById);
+
 router.patch("/:userId", auth(USERROLE.ADMIN), userController.updateUser);
 
 router.delete("/:userId", auth(USERROLE.ADMIN), userController.deleteUser);

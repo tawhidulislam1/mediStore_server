@@ -40,6 +40,22 @@ const getAllCategory = async (req: Request, res: Response) => {
     });
   }
 };
+const getCategoryById = async (req: Request, res: Response) => {
+  try {
+    const { categoryId } = req.params;
+    const id = Number(categoryId);
+    const result = await categoryService.getCategoryById(id);
+    res.status(201).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    res.status(400).json({
+      error: error instanceof Error ? error.message : "Category Find failed",
+      details: error,
+    });
+  }
+};
 
 const updateCategory = async (
   req: Request,
@@ -105,6 +121,7 @@ const deleteCategory = async (req: Request, res: Response) => {
 export const categoryController = {
   createCategory,
   getAllCategory,
+  getCategoryById,
   updateCategory,
   deleteCategory,
 };

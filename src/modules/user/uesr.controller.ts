@@ -85,7 +85,7 @@ const deleteUser = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.status(400).json({
-      error: error instanceof Error ? error.message : "user delete failed",
+      error: error instanceof Error ? error.message : "user stats get failed",
       details: error,
     });
   }

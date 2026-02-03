@@ -29,5 +29,12 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
+    autoSignIn: true,
+  },
+  callbacks: {
+    session: async ({ session, user }) => {
+      session.user.role = user.role;
+      return session;
+    },
   },
 });

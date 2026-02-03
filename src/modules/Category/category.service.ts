@@ -17,8 +17,42 @@ const createCategory = async (
 const getAllCategory = async () => {
   const res = await prisma.category.findMany({
     include: {
+      user: {
+        select: {
+          name: true,
+          email: true,
+          id: true,
+        },
+      },
       _count: {
-        select: { Medicines: true },
+        select: {
+          Medicines: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+  return res;
+};
+const getCategoryById = async (id: number) => {
+  const res = await prisma.category.findMany({
+    where: {
+      id: id,
+    },
+    include: {
+      user: {
+        select: {
+          name: true,
+          email: true,
+          id: true,
+        },
+      },
+      _count: {
+        select: {
+          Medicines: true,
+        },
       },
     },
   });
@@ -68,6 +102,7 @@ const deleteCategory = async (categoryId: number) => {
 export const categoryService = {
   createCategory,
   getAllCategory,
+  getCategoryById,
   updateCategory,
   deleteCategory,
 };

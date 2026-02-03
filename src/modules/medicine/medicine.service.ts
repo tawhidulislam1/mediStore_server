@@ -1,20 +1,27 @@
 import { object } from "better-auth";
-import { Medicines, Prisma } from "../../../generated/prisma/client";
+import { Medicines, Prisma, User } from "../../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
 import { MedicinesWhereUniqueInput } from "../../../generated/prisma/models";
+import { USERROLE } from "../../middlewere/auth";
 
 const createMedicine = async (
   data: Omit<Medicines, "id" | "createdAt" | "updatedAt">,
 ) => {
+  const medicineData = {
+    ...data,
+  };
+
   const res = await prisma.medicines.create({
-    data,
+    data: medicineData,
   });
+
   return res;
 };
 
 const getAllMedicine = async (payload: {
   search?: string | undefined;
   category?: string | undefined;
+  status?: string | undefined;
 }) => {
   const addCondition: Prisma.MedicinesWhereInput[] = [];
   if (payload.search) {
@@ -41,17 +48,30 @@ const getAllMedicine = async (payload: {
       categoryId: Number(payload.category),
     });
   }
-  addCondition.push({
-    status: "ACTIVE",
-  });
+  if (payload.status) {
+    addCondition.push({
+      status: payload.status as any,
+    });
+  }
 
   const res = await prisma.medicines.findMany({
     where: {
       AND: addCondition,
     },
+    orderBy: {
+      createdAt: "desc",
+    },
     include: {
       category: {
         select: { name: true },
+      },
+      reviews: true,
+      seller: {
+        select: {
+          name: true,
+          email: true,
+          id: true,
+        },
       },
       _count: {
         select: { orderItems: true, reviews: true },
@@ -66,6 +86,22 @@ const getMedicineById = async (medicineid: string) => {
       id: medicineid,
     },
     include: {
+      category: {
+        select: { name: true, id: true },
+      },
+      reviews: {
+        select: {
+          comment: true,
+          createdAt: true,
+          id: true,
+          customer: {
+            select: {
+              name: true,
+              id: true,
+            },
+          },
+        },
+      },
       seller: {
         select: {
           id: true,
@@ -88,6 +124,9 @@ const getMedicineBySeller = async (sellerId: string) => {
       sellerId: sellerId,
     },
     include: {
+      category: {
+        select: { name: true },
+      },
       seller: {
         select: {
           id: true,
@@ -106,7 +145,6 @@ const updateMedicine = async (
   medicineId: string,
   data: Partial<Medicines>,
   userId: string,
-  isAdmin: Boolean,
 ) => {
   const medicineData = await prisma.medicines.findUniqueOrThrow({
     where: {
@@ -117,7 +155,7 @@ const updateMedicine = async (
     },
   });
 
-  if (!isAdmin && medicineData.sellerId !== userId) {
+  if (medicineData.sellerId !== userId) {
     throw new Error("your are not owner in this post");
   }
   const result = await prisma.medicines.update({

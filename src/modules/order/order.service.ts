@@ -185,38 +185,80 @@ const getOrderById = async (orderId: string, user: any) => {
   return order;
 };
 
-const updateOrderStatusBySeller = async (
+const updateOrderStatus = async (
   orderId: string,
-  sellerId: string,
+  userId: string,
+  userRoles: string,
   newStatus: OrderStatus,
 ) => {
-  const sellerItems = await prisma.orderItem.findMany({
-    where: {
-      orderId,
-      medicines: {
-        sellerId: sellerId,
-      },
-    },
+  // Fetch the order once for validation
+  const order = await prisma.orders.findUnique({
+    where: { id: orderId },
   });
 
-  if (sellerItems.length === 0) {
-    throw new Error("You are not authorized to update this order");
+  if (!order) {
+    throw new Error("Order not found");
   }
 
-  const updatedOrder = await prisma.orders.update({
-    where: { id: orderId },
-    data: {
-      status: newStatus,
-      updatedAt: new Date(),
-    },
-  });
+  // --------------------------
+  // CUSTOMER LOGIC
+  // --------------------------
+  if (userRoles.includes(USERROLE.CUSTOMER)) {
+    // Customers can only CANCEL
+    if (newStatus !== OrderStatus.CANCEL) {
+      throw new Error("Customers can only cancel orders");
+    }
 
-  return updatedOrder;
+    // Check if this order belongs to the customer
+    if (order.customerId !== userId) {
+      throw new Error("You cannot update this order");
+    }
+
+    return prisma.orders.update({
+      where: { id: orderId },
+      data: {
+        status: OrderStatus.CANCEL,
+        updatedAt: new Date(),
+      },
+    });
+  }
+
+  // --------------------------
+  // SELLER LOGIC
+  // --------------------------
+  if (userRoles.includes(USERROLE.SELLER)) {
+    // Check if the seller has items in this order
+    const sellerItems = await prisma.orderItem.findMany({
+      where: {
+        orderId,
+        medicines: {
+          sellerId: userId,
+        },
+      },
+    });
+
+    if (sellerItems.length === 0) {
+      throw new Error("You are not authorized to update this order");
+    }
+
+    // Seller can update status
+    return prisma.orders.update({
+      where: { id: orderId },
+      data: {
+        status: newStatus,
+        updatedAt: new Date(),
+      },
+    });
+  }
+
+  throw new Error("You are not authorized to update orders");
 };
+
+
 
 export const orderService = {
   createOrder,
   getAllOrders,
   getOrderById,
-  updateOrderStatusBySeller,
+  updateOrderStatus,
 };
