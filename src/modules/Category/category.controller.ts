@@ -6,9 +6,9 @@ const createCategory = async (req: Request, res: Response) => {
   try {
     const user = req.user;
     if (!user) {
-      return res.status(400).json({
+      return res.status(401).json({
         success: false,
-        details: "Your are to able to create",
+        message: "You must be logged in to create a category",
       });
     }
     const result = await categoryService.createCategory(
@@ -29,7 +29,7 @@ const createCategory = async (req: Request, res: Response) => {
 const getAllCategory = async (req: Request, res: Response) => {
   try {
     const result = await categoryService.getAllCategory();
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       data: result,
     });
@@ -45,13 +45,13 @@ const getCategoryById = async (req: Request, res: Response) => {
     const { categoryId } = req.params;
     const id = Number(categoryId);
     const result = await categoryService.getCategoryById(id);
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       data: result,
     });
   } catch (error) {
     res.status(400).json({
-      error: error instanceof Error ? error.message : "Category Find failed",
+      error: error instanceof Error ? error.message : "Invalid category id",
       details: error,
     });
   }
