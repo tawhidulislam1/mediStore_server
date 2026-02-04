@@ -17,6 +17,21 @@ const createCart = async (req: Request, res: Response) => {
     });
   }
 };
+const getMyCart = async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+    const result = await CartService.getMyCart(user?.id as string);
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    res.status(400).json({
+      error: error instanceof Error ? error.message : "cart find failed",
+      details: error,
+    });
+  }
+};
 const getCartById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -32,6 +47,7 @@ const getCartById = async (req: Request, res: Response) => {
     });
   }
 };
+
 const deleteCartById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -55,5 +71,6 @@ const deleteCartById = async (req: Request, res: Response) => {
 export const cartController = {
   createCart,
   getCartById,
+  getMyCart,
   deleteCartById,
 };

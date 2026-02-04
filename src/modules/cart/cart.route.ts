@@ -9,10 +9,16 @@ router.post(
   cartController.createCart,
 );
 router.get(
+  "/myCart",
+  auth(USERROLE.ADMIN, USERROLE.CUSTOMER, USERROLE.SELLER),
+  cartController.getMyCart,
+);
+router.get(
   "/:id",
   auth(USERROLE.ADMIN, USERROLE.CUSTOMER, USERROLE.SELLER),
   cartController.getCartById,
 );
+
 router.delete(
   "/:id",
   auth(USERROLE.ADMIN, USERROLE.CUSTOMER, USERROLE.SELLER),

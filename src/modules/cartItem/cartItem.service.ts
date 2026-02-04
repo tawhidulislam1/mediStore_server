@@ -3,10 +3,11 @@ import { prisma } from "../../lib/prisma";
 const createCartItem = async (payload: {
   medicineId: string;
   customerId: string;
-  cartId?: string; 
+  cartId?: string;
   quantity: number;
 }) => {
   let cart = null;
+
   if (payload.cartId) {
     cart = await prisma.cart.findUnique({
       where: { id: payload.cartId },
@@ -22,7 +23,25 @@ const createCartItem = async (payload: {
   if (!cart) {
     cart = await prisma.cart.create({
       data: { userId: payload.customerId },
+      include: { items: true },
     });
+  }
+
+  const existingItem = cart.items.find(
+    (item) => item.medicineId === payload.medicineId,
+  );
+
+  if (existingItem) {
+    const updatedItem = await prisma.cartItem.update({
+      where: { id: existingItem.id },
+      data: {
+        quantity: {
+          increment: payload.quantity,
+        },
+      },
+    });
+
+    return updatedItem;
   }
 
   const cartItem = await prisma.cartItem.create({

@@ -48,6 +48,27 @@ const getAlluserById = async (req: Request, res: Response) => {
   }
 };
 
+const updateUserData = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const user = req.user;
+
+    const result = await userService.updateUserData(
+      user?.id as string,
+      req.body,
+    );
+    res.status(201).json({
+      success: true,
+      result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const updateUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = req.user;
@@ -93,6 +114,7 @@ const deleteUser = async (req: Request, res: Response) => {
 export const userController = {
   getAllUser,
   getAlluserById,
+  updateUserData,
   updateUser,
   deleteUser,
 };

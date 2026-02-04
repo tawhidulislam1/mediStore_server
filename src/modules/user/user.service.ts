@@ -15,6 +15,7 @@ const getAlluserById = async (userId: string) => {
   const res = await prisma.user.findUnique({
     where: { id: userId },
     include: {
+      cartItems: true,
       _count: {
         select: { orders: true, medicines: true, reviews: true },
       },
@@ -23,6 +24,20 @@ const getAlluserById = async (userId: string) => {
   return res;
 };
 
+const updateUserData = async (userId: string, data: Partial<User>) => {
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      id: userId,
+    },
+  });
+  const result = await prisma.user.update({
+    where: {
+      id: userData.id,
+    },
+    data,
+  });
+  return result;
+};
 const updateUser = async (
   userId: string,
   data: Partial<User>,
@@ -65,10 +80,10 @@ const deleteUser = async (userId: string) => {
   });
 };
 
-
 export const userService = {
   getAlluser,
   getAlluserById,
+  updateUserData,
   updateUser,
   deleteUser,
 };

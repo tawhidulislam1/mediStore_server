@@ -15,6 +15,30 @@ const createCart = async (data: Prisma.CartCreateInput, userId: string) => {
   }
   return cartData;
 };
+const getMyCart = async (userId: string) => {
+  let cart = await prisma.cart.findMany({
+    where: { userId },
+    include: {
+      items: {
+        select: {
+          id: true,
+          quantity: true,
+          medicines: {
+            select: {
+              name: true,
+              price: true,
+              id: true,
+              image: true,
+              description:true
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return cart;
+};
 const getCartById = async (id: string) => {
   const cart = await prisma.cart.findFirst({
     where: { id },
@@ -25,6 +49,7 @@ const getCartById = async (id: string) => {
 
   return cart;
 };
+
 const deleteCartById = async (id: string, userId: string) => {
   const cartData = await prisma.cart.findFirst({
     where: { userId: userId },
@@ -40,5 +65,6 @@ const deleteCartById = async (id: string, userId: string) => {
 export const CartService = {
   createCart,
   getCartById,
+  getMyCart,
   deleteCartById,
 };
