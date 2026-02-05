@@ -8,6 +8,7 @@ async function seedAdmin() {
       email: process.env.ADMIN_EMAIL,
       role: USERROLE.ADMIN,
       password: process.env.ADMIN_PASSWORD,
+      image: process.env.IMAGE,
     };
     //check user exist on db or not
     const existingUser = await prisma.user.findUnique({
@@ -19,18 +20,17 @@ async function seedAdmin() {
       throw new Error("User Already Exists");
     }
     const signUpAdmin = await fetch(
-      "http://localhost:5000/api/auth/sign-up/email",
+      "https://medi-store-server-seven.vercel.app/api/auth/sign-up/email",
       {
         method: "POST",
         headers: {
           "content-Type": "application/json",
-          "Origin": "http://localhost:3000"
+          Origin: "https://medistore-lyart.vercel.app",
         },
         body: JSON.stringify(adminData),
       },
     );
 
-    console.log("Admin created:", signUpAdmin);
   } catch (error) {
     console.error(error);
   }

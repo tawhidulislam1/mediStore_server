@@ -294,7 +294,20 @@ var auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql"
   }),
-  trustedOrigins: [process.env.APP_URL],
+  trustedOrigins: async (request) => {
+    const origin = request?.headers.get("origin");
+    const allowedOrigins2 = [
+      process.env.APP_URL,
+      process.env.BETTER_AUTH_URL,
+      "http://localhost:3000",
+      "http://localhost:4000",
+      "http://localhost:5000"
+    ].filter(Boolean);
+    if (!origin || allowedOrigins2.includes(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin)) {
+      return [origin];
+    }
+    return [];
+  },
   user: {
     additionalFields: {
       role: {
@@ -322,6 +335,22 @@ var auth = betterAuth({
       session.user.role = user.role;
       return session;
     }
+  },
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60
+      // 5 minutes
+    }
+  },
+  advanced: {
+    cookiePrefix: "better-auth",
+    useSecureCookies: process.env.NODE_ENV === "production",
+    crossSubDomainCookies: {
+      enabled: false
+    },
+    disableCSRFCheck: true
+    // Allow requests without Origin header (Postman, mobile apps, etc.)
   }
 });
 
@@ -460,9 +489,9 @@ var createCategory2 = async (req, res) => {
   try {
     const user = req.user;
     if (!user) {
-      return res.status(400).json({
+      return res.status(401).json({
         success: false,
-        details: "Your are to able to create"
+        message: "You must be logged in to create a category"
       });
     }
     const result = await categoryService.createCategory(
@@ -483,7 +512,7 @@ var createCategory2 = async (req, res) => {
 var getAllCategory2 = async (req, res) => {
   try {
     const result = await categoryService.getAllCategory();
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       data: result
     });
@@ -499,13 +528,13 @@ var getCategoryById2 = async (req, res) => {
     const { categoryId } = req.params;
     const id = Number(categoryId);
     const result = await categoryService.getCategoryById(id);
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       data: result
     });
   } catch (error) {
     res.status(400).json({
-      error: error instanceof Error ? error.message : "Category Find failed",
+      error: error instanceof Error ? error.message : "Invalid category id",
       details: error
     });
   }
@@ -2072,11 +2101,30 @@ router7.delete("/:userId", auth_default("ADMIN" /* ADMIN */), userController.del
 var UserRouter = router7;
 
 // src/app.ts
+var allowedOrigins = [
+  process.env.APP_URL || "http://localhost:4000",
+  process.env.PROD_APP_URL,
+  // Production frontend URL
+  "http://localhost:3000",
+  "http://localhost:4000",
+  "http://localhost:5000"
+].filter(Boolean);
 var app = express8();
 app.use(
   cors({
-    origin: process.env.APP_URL,
-    credentials: true
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/next-blog-client.*\.vercel\.app$/.test(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+    exposedHeaders: ["Set-Cookie"]
   })
 );
 app.use(express8.json());
