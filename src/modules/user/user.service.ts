@@ -52,7 +52,7 @@ const updateUser = async (
     },
   });
   if (!isAdmin && postData.id !== userId) {
-    throw new Error("your are not owner in this user");
+    throw new Error("your are not owner in this user | Don't try to update other user data");
   }
   if (!isAdmin) {
     delete data.role;
