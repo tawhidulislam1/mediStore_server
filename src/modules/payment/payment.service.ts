@@ -12,7 +12,7 @@ const handlerStripeWebhookEvent = async (event: Stripe.Event) => {
     });
 
     if (existingEvent) {
-      return { message: "Event already processed" };
+      return { message: "Event already processed............" };
     }
 
     switch (event.type) {
@@ -26,7 +26,7 @@ const handlerStripeWebhookEvent = async (event: Stripe.Event) => {
         const paymentId = session.metadata?.paymentId;
 
         if (!orderId || !paymentId) {
-          return { message: "Missing metadata" };
+          return { message: "Missing metadata | orderid or paymentId not found" };
         }
 
         await prisma.$transaction(async (tx) => {
@@ -49,7 +49,7 @@ const handlerStripeWebhookEvent = async (event: Stripe.Event) => {
           });
         });
 
-        return { message: "Payment completed successfully" };
+        return { message: "Payment completed successfully " };
       }
 
       /**
