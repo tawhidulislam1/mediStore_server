@@ -274,7 +274,7 @@ const updateOrderStatus = async (
 
     return prisma.orders.update({
       where: { id: orderId },
-      data: { status: OrderStatus.CANCEL, updatedAt: new Date() }, // ✅ status field e likhcho
+      data: { status: OrderStatus.CANCEL, updatedAt: new Date() },
     });
   }
 
@@ -282,11 +282,10 @@ const updateOrderStatus = async (
   if (userRoles.includes(USERROLE.ADMIN)) {
     return prisma.orders.update({
       where: { id: orderId },
-      data: { status: newStatus, updatedAt: new Date() }, // ✅ admin je status pathay, sheita e set hoy
+      data: { status: newStatus, updatedAt: new Date() },
     });
   }
 
-  // SELLER — sudhu nijer medicine-er order status update korte parbe, cancel korte parbe na
   if (userRoles.includes(USERROLE.SELLER)) {
     const sellerItems = await prisma.orderItem.findMany({
       where: { orderId, medicines: { sellerId: userId } },
@@ -302,7 +301,7 @@ const updateOrderStatus = async (
     });
   }
 
-  throw new Error("Not authorized");
+  throw new Error("Not authorized. this is not your order");
 };
 export const orderService = {
   createOrder,
