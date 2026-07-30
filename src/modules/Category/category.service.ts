@@ -75,7 +75,7 @@ const updateCategory = async (
   });
 
   if (!isAdmin && categoryData.userId !== userId) {
-    throw new Error("your are not owner in this post");
+    throw new Error("your are not owner in this post | you are not admin");
   }
   const result = await prisma.category.update({
     where: {
